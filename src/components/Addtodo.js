@@ -1,9 +1,14 @@
 import React, { useState } from "react";
 import Todoitem from "./Todoitem";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Confirmdelete from "./Confirmdelete";
+import Confirmedit from "./Confirmedit";
 
 function Addtodo(props) {
   const [task, setTask] = useState("");
   const [todo, setTodo] = useState([]);
+  const [deleteIndex, setDeleteIndex] = useState(null);
+  const [editindex, setEditindex] = useState(null)
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -18,22 +23,36 @@ function Addtodo(props) {
     setTask(e.target.value);
   };
 
-  const deleteItem = (index) => {
-    const newTodo = todo.filter((_todo, currentIndex) => {
-      return currentIndex !== index;
-    });
-    setTodo(newTodo);
-    props.showAlert("Todo Deleted", "danger");
+  const confirmDelete = (index) => {
+    setDeleteIndex(index);
+    const modal = new window.bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
   };
 
-  const editItem = (index) => {
-    const editedTodo = prompt("Edit todo", todo[index]);
+  const deleteItem = () => {
+    if (deleteIndex !== null) {
+      const newTodo = todo.filter((_todo, currentIndex) => currentIndex !== deleteIndex);
+      setTodo(newTodo)
+      props.showAlert("Todo Deleted", "danger");
+      setDeleteIndex(null);
+    }
+  };
 
-    if (editedTodo !== null && editedTodo.trim() !== "") {
+  const confrimEdit = (index) => {
+    setEditindex(index)
+    setTask(todo[index]);
+    const modal = new window.bootstrap.Modal(document.getElementById('editModal'));
+    modal.show();
+  }
+
+  const editItem = (index) => {
+    if (task.trim() !== "") {
       let updatedTodos = [...todo];
-      updatedTodos[index] = editedTodo;
-      setTodo(updatedTodos); 
+      updatedTodos[editindex] = task;
+      setTodo(updatedTodos);
       props.showAlert("Todo Updated", "success");
+      setEditindex(null)
+      setTask('') 
     }
   };
 
@@ -67,12 +86,18 @@ function Addtodo(props) {
               key={index}
               index={index}
               task={item}
-              deleteItem={deleteItem}
-              editItem={editItem}
+              deleteItem={() => confirmDelete(index)}
+              editItem={() => confrimEdit(index)}
               showAlert={props.showAlert}
             />
           ))}
         </ul>
+      </div>
+      <div>
+        <Confirmdelete deleteItem={deleteItem}/>
+      </div>
+      <div>
+        <Confirmedit editItem={editItem} onChange={onChange} task={task}/>
       </div>
     </>
   );

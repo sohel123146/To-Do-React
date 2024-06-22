@@ -26,14 +26,13 @@ const createTodo = async(req,res) => {
 
 
 const fetchTodos = async(req,res) => {
-    const { userId } = req.params;
     try {
-        const todos = await todoModel.find({ user: userId })
-        res.json(todos)
-    } catch (error) {
-        console.error(error.message)
-        res.status(400).send("Internal Server Error...")
-    }
+        const todos = await todoModel.find({ user: req.user.id });
+        res.json(todos);
+      } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Internal Server Error");
+      }
 }
 
 const updateTodo = async(req,res) =>{
@@ -57,7 +56,7 @@ const updateTodo = async(req,res) =>{
         //allow user to update if he owns the todo "This code block not allowing user to update the todo"
         //todo.user.toString gives id of the todo
         if(todo.user.toString() !== req.user.id){
-            return res.status(401).send("Not Allowed");
+            return res.status(400).send("Not Allowed");
         }
 
         //if the note exists then update the todo
@@ -66,7 +65,7 @@ const updateTodo = async(req,res) =>{
             { $set: newTodo },
             { new: true }
         );
-        res.status(200).json(todo)
+        res.status(200).json({ success: "ToDo has been deleted", todo: todo })
 
     } catch (error) {
         console.error(error.message);
@@ -74,5 +73,24 @@ const updateTodo = async(req,res) =>{
     }
 }
 
+const deleteTodo = async(req,res) =>{
+    try {
+        let todo = await todoModel.findById(req.params.id)
+        if(!todo){
+            res.status(400).send("todo not found")
+        }
+    
+        if(todo.user.toString() !== req.user.id){
+            return res.status(400).send("Not Allowed")
+        }
+    
+        todo = await todoModel.findByIdAndDelete(req.params.id)
+        res.status(200).json({ success: "ToDo has been deleted", todo: todo })
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+}
 
-module.exports = { createTodo,fetchTodos,updateTodo }
+
+module.exports = { createTodo,fetchTodos,updateTodo,deleteTodo }

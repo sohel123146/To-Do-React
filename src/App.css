@@ -2,9 +2,17 @@ html body{
   background: #f50766;
 }
 
+.todo-form{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
 .form-control
 {
-  width:300px;
+  border:1px solid green;
+  width:500x;
   padding:10px; 
   border-radius: 20px;
   outline: none;

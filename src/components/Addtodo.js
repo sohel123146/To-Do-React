@@ -58,7 +58,7 @@ function Addtodo(props) {
 
   return (
     <>
-      <div className="d-flex align-items-center justify-content-center my-3 px-5">
+      <div className="d-flex align-items-center justify-content-center my-3">
         <h1 style={{ color: "white", marginTop: "10px" }}>Get Things Done!!</h1>
       </div>
       <div className="d-flex align-items-center justify-content-center my-3">

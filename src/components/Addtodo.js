@@ -1,103 +1,68 @@
-import React, { useState } from "react";
-import Todoitem from "./Todoitem";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Confirmdelete from "./Confirmdelete";
-import Confirmedit from "./Confirmedit";
+import React, { useContext, useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import todoContext from "../context/todoContext";
 
 function Addtodo(props) {
-  const [task, setTask] = useState("");
-  const [todo, setTodo] = useState([]);
-  const [deleteIndex, setDeleteIndex] = useState(null);
-  const [editindex, setEditindex] = useState(null)
+  const context = useContext(todoContext);
+  const { addTodo } = context;
+  const [todo, setTodo] = useState({ title: "", tag: "" });
 
   const handleClick = (e) => {
     e.preventDefault();
-    if (task.trim().length > 0) {
-      setTodo([...todo, task]);
-      setTask("");
-      props.showAlert("New Todo Added", "success");
-    }
+    addTodo(todo.title, todo.description, todo.tag);
+    props.showAlert("todo Added Successfully", "success");
+    setTodo({ title: "", tag: "" });
   };
 
   const onChange = (e) => {
-    setTask(e.target.value);
-  };
-
-  const confirmDelete = (index) => {
-    setDeleteIndex(index);
-    const modal = new window.bootstrap.Modal(document.getElementById('deleteModal'));
-    modal.show();
-  };
-
-  const deleteItem = () => {
-    if (deleteIndex !== null) {
-      const newTodo = todo.filter((_todo, currentIndex) => currentIndex !== deleteIndex);
-      setTodo(newTodo)
-      props.showAlert("Todo Deleted", "danger");
-      setDeleteIndex(null);
-    }
-  };
-
-  const confrimEdit = (index) => {
-    setEditindex(index)
-    setTask(todo[index]);
-    const modal = new window.bootstrap.Modal(document.getElementById('editModal'));
-    modal.show();
-  }
-
-  const editItem = (index) => {
-    if (task.trim() !== "") {
-      let updatedTodos = [...todo];
-      updatedTodos[editindex] = task;
-      setTodo(updatedTodos);
-      props.showAlert("Todo Updated", "success");
-      setEditindex(null)
-      setTask('') 
-    }
+    setTodo({ ...todo, [e.target.name]: e.target.value });
   };
 
   return (
     <>
-      <div className="d-flex align-items-center justify-content-center my-3">
-        <h1 style={{ color: "white", marginTop: "10px" }}>Get Things Done!!</h1>
-      </div>
-      <div className="d-flex align-items-center justify-content-center my-3">
-        <form onSubmit={handleClick} className="d-flex">
-          <input
-            type="text"
-            className="form-control me-2"
-            placeholder="Add Item..."
-            onChange={onChange}
-            value={task}
-          />
+      <div className="container my-3">
+        <h2>Add a todo</h2>
+        <form className="my-3">
+          <div className="mb-3">
+            <label htmlFor="title" className="form-label">
+              Title
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="title"
+              name="title"
+              value={todo.title}
+              onChange={onChange}
+              minLength={5}
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="tag" className="form-label">
+              Tag
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="tag"
+              name="tag"
+              value={todo.tag}
+              onChange={onChange}
+              minLength={5}
+              required
+            />
+          </div>
+
           <button
+            disabled={todo.title.length < 5}
             type="submit"
-            disabled={task.length === 0}
             className="btn btn-primary"
+            onClick={handleClick}
           >
-            Add
+            Add Todo
           </button>
         </form>
-      </div>
-      <div className="d-flex align-items-center justify-content-center my-3">
-        <ul className="list-group">
-          {todo.map((item, index) => (
-            <Todoitem
-              key={index}
-              index={index}
-              task={item}
-              deleteItem={() => confirmDelete(index)}
-              editItem={() => confrimEdit(index)}
-              showAlert={props.showAlert}
-            />
-          ))}
-        </ul>
-      </div>
-      <div>
-        <Confirmdelete deleteItem={deleteItem}/>
-      </div>
-      <div>
-        <Confirmedit editItem={editItem} onChange={onChange} task={task}/>
       </div>
     </>
   );
